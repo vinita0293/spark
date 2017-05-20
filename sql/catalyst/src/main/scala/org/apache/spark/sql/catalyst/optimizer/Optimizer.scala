@@ -1000,13 +1000,16 @@ object PushPredicateThroughJoin extends Rule[LogicalPlan] with PredicateHelper {
       val (leftJoinConditions, rightJoinConditions, commonJoinCondition) =
         split(joinCondition.map(splitConjunctivePredicates).getOrElse(Nil), left, right)
 
+      val (viniLeftJoinConditions, viniRightJoinConditions, viniCommonJoinCondition) =
+        split(joinCondition.map(splitAllPredicates).getOrElse(Nil), left, right)
+
       joinType match {
         case _: InnerLike | LeftSemi =>
           // push down the single side only join filter for both sides sub queries
-          val newLeft = leftJoinConditions.
-            reduceLeftOption(And).map(Filter(_, left)).getOrElse(left)
-          val newRight = rightJoinConditions.
-            reduceLeftOption(And).map(Filter(_, right)).getOrElse(right)
+          val newLeft = preparePushingFilterCond(leftJoinConditions, viniLeftJoinConditions)
+            .map(Filter(_, left)).getOrElse(left)
+          val newRight = preparePushingFilterCond(rightJoinConditions, viniRightJoinConditions)
+            .map(Filter(_, right)).getOrElse(right)
           val newJoinCond = commonJoinCondition.reduceLeftOption(And)
 
           Join(newLeft, newRight, joinType, newJoinCond)
@@ -1030,6 +1033,15 @@ object PushPredicateThroughJoin extends Rule[LogicalPlan] with PredicateHelper {
         case NaturalJoin(_) => sys.error("Untransformed NaturalJoin node")
         case UsingJoin(_, _) => sys.error("Untransformed Using join node")
       }
+  }
+
+  def preparePushingFilterCond(joinConditions: Seq[Expression], viniJoinConditions
+  : Seq[Expression]): Option[Expression] = {
+    joinConditions.reduceLeftOption(And) viniJoinConditions.diff(joinConditions)
+      .reduceLeftOption(Or)
+
+    (joinConditions ++ viniJoinConditions.diff(joinConditions)).
+      reduceLeftOption(And)
   }
 }
 
