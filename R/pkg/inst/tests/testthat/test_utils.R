@@ -170,8 +170,7 @@ test_that("convertToJSaveMode", {
 
 test_that("captureJVMException", {
   skip_on_cran()
-
-  method <- "createStructField"
+  method <- "getSQLDataType"
   expect_error(tryCatch(callJStatic("org.apache.spark.sql.api.r.SQLUtils", method,
                                     "col", "unknown", TRUE),
                         error = function(e) {

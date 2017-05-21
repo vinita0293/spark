@@ -80,11 +80,6 @@ class AstBuilder(conf: SQLConf) extends SqlBaseBaseVisitor[AnyRef] with Logging 
     visitTableIdentifier(ctx.tableIdentifier)
   }
 
-  override def visitSingleFunctionIdentifier(
-      ctx: SingleFunctionIdentifierContext): FunctionIdentifier = withOrigin(ctx) {
-    visitFunctionIdentifier(ctx.functionIdentifier)
-  }
-
   override def visitSingleDataType(ctx: SingleDataTypeContext): DataType = withOrigin(ctx) {
     visitSparkDataType(ctx.dataType)
   }
@@ -407,7 +402,7 @@ class AstBuilder(conf: SQLConf) extends SqlBaseBaseVisitor[AnyRef] with Logging 
         val withWindow = withDistinct.optionalMap(windows)(withWindows)
 
         // Hint
-        withWindow.optionalMap(hint)(withHints)
+        withWindow.optionalMap(windows)(withHints)
     }
   }
 
@@ -536,10 +531,10 @@ class AstBuilder(conf: SQLConf) extends SqlBaseBaseVisitor[AnyRef] with Logging 
    * Add a [[Hint]] to a logical plan.
    */
   private def withHints(
-      ctx: HintContext,
+      ctx: ParserRuleContext,
       query: LogicalPlan): LogicalPlan = withOrigin(ctx) {
-    val stmt = ctx.hintStatement
-    Hint(stmt.hintName.getText, stmt.parameters.asScala.map(_.getText), query)
+    //val stmt = ctx.hintStatement
+    Hint("", Seq.empty, query)
   }
 
   /**
@@ -779,14 +774,6 @@ class AstBuilder(conf: SQLConf) extends SqlBaseBaseVisitor[AnyRef] with Logging 
   override def visitTableIdentifier(
       ctx: TableIdentifierContext): TableIdentifier = withOrigin(ctx) {
     TableIdentifier(ctx.table.getText, Option(ctx.db).map(_.getText))
-  }
-
-  /**
-   * Create a [[FunctionIdentifier]] from a 'functionName' or 'databaseName'.'functionName' pattern.
-   */
-  override def visitFunctionIdentifier(
-      ctx: FunctionIdentifierContext): FunctionIdentifier = withOrigin(ctx) {
-    FunctionIdentifier(ctx.function.getText, Option(ctx.db).map(_.getText))
   }
 
   /* ********************************************************************************************
@@ -1047,29 +1034,13 @@ class AstBuilder(conf: SQLConf) extends SqlBaseBaseVisitor[AnyRef] with Logging 
   }
 
   /**
-   * Create a [[First]] expression.
-   */
-  override def visitFirst(ctx: FirstContext): Expression = withOrigin(ctx) {
-    val ignoreNullsExpr = ctx.IGNORE != null
-    First(expression(ctx.expression), Literal(ignoreNullsExpr)).toAggregateExpression()
-  }
-
-  /**
-   * Create a [[Last]] expression.
-   */
-  override def visitLast(ctx: LastContext): Expression = withOrigin(ctx) {
-    val ignoreNullsExpr = ctx.IGNORE != null
-    Last(expression(ctx.expression), Literal(ignoreNullsExpr)).toAggregateExpression()
-  }
-
-  /**
    * Create a (windowed) Function expression.
    */
   override def visitFunctionCall(ctx: FunctionCallContext): Expression = withOrigin(ctx) {
     // Create the function call.
     val name = ctx.qualifiedName.getText
     val isDistinct = Option(ctx.setQuantifier()).exists(_.DISTINCT != null)
-    val arguments = ctx.namedExpression().asScala.map(expression) match {
+    val arguments = ctx.expression().asScala.map(expression) match {
       case Seq(UnresolvedStar(None))
         if name.toLowerCase(Locale.ROOT) == "count" && !isDistinct =>
         // Transform COUNT(*) into COUNT(1).
@@ -1181,7 +1152,7 @@ class AstBuilder(conf: SQLConf) extends SqlBaseBaseVisitor[AnyRef] with Logging 
    * Create a [[CreateStruct]] expression.
    */
   override def visitRowConstructor(ctx: RowConstructorContext): Expression = withOrigin(ctx) {
-    CreateStruct(ctx.namedExpression().asScala.map(expression))
+    CreateStruct(ctx.expression().asScala.map(expression))
   }
 
   /**
@@ -1376,14 +1347,16 @@ class AstBuilder(conf: SQLConf) extends SqlBaseBaseVisitor[AnyRef] with Logging 
    * Create a Byte Literal expression.
    */
   override def visitTinyIntLiteral(ctx: TinyIntLiteralContext): Literal = {
-    numericLiteral(ctx, Byte.MinValue, Byte.MaxValue, ByteType.simpleString)(_.toByte)
+    numericLiteral(ctx, Byte.byte2double(Byte.MinValue), Byte.byte2double(Byte.MaxValue)
+      , ByteType.simpleString)(_.toByte)
   }
 
   /**
    * Create a Short Literal expression.
    */
   override def visitSmallIntLiteral(ctx: SmallIntLiteralContext): Literal = {
-    numericLiteral(ctx, Short.MinValue, Short.MaxValue, ShortType.simpleString)(_.toShort)
+    numericLiteral(ctx, Short.short2double(Short.MinValue), Short.short2double(Short.MaxValue)
+      , ShortType.simpleString)(_.toShort)
   }
 
   /**

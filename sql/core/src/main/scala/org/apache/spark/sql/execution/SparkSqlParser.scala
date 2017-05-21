@@ -141,23 +141,6 @@ class SparkSqlAstBuilder(conf: SQLConf) extends AstBuilder(conf) {
   }
 
   /**
-   * Create a [[ShowTablesCommand]] logical plan.
-   * Example SQL :
-   * {{{
-   *   SHOW TABLE EXTENDED [(IN|FROM) database_name] LIKE 'identifier_with_wildcards'
-   *   [PARTITION(partition_spec)];
-   * }}}
-   */
-  override def visitShowTable(ctx: ShowTableContext): LogicalPlan = withOrigin(ctx) {
-    val partitionSpec = Option(ctx.partitionSpec).map(visitNonOptionalPartitionSpec)
-    ShowTablesCommand(
-      Option(ctx.db).map(_.getText),
-      Option(ctx.pattern).map(string),
-      isExtended = true,
-      partitionSpec = partitionSpec)
-  }
-
-  /**
    * Create a [[ShowDatabasesCommand]] logical plan.
    * Example SQL:
    * {{{
@@ -288,7 +271,7 @@ class SparkSqlAstBuilder(conf: SQLConf) extends AstBuilder(conf) {
         logicalPlan = statement,
         extended = ctx.EXTENDED != null,
         codegen = ctx.CODEGEN != null,
-        cost = ctx.COST != null)
+        cost = ctx.CODEGEN != null)
     } else {
       ExplainCommand(OneRowRelation)
     }
@@ -369,11 +352,11 @@ class SparkSqlAstBuilder(conf: SQLConf) extends AstBuilder(conf) {
     if (external) {
       operationNotAllowed("CREATE EXTERNAL TABLE ... USING", ctx)
     }
-    val options = Option(ctx.options).map(visitPropertyKeyValues).getOrElse(Map.empty)
+    val options = Option(ctx.tablePropertyList).map(visitPropertyKeyValues).getOrElse(Map.empty)
     val provider = ctx.tableProvider.qualifiedName.getText
-    val schema = Option(ctx.colTypeList()).map(createSchema)
+    val schema = Option(ctx.colTypeList())
     val partitionColumnNames =
-      Option(ctx.partitionColumnNames)
+      Option(ctx.partitionColumns.asInstanceOf[IdentifierListContext])
         .map(visitIdentifierList(_).toArray)
         .getOrElse(Array.empty[String])
     val bucketSpec = Option(ctx.bucketSpec()).map(visitBucketSpec)
@@ -398,11 +381,11 @@ class SparkSqlAstBuilder(conf: SQLConf) extends AstBuilder(conf) {
       identifier = table,
       tableType = tableType,
       storage = storage.copy(locationUri = customLocation),
-      schema = schema.getOrElse(new StructType),
+      schema = schema.getOrElse(new StructType).asInstanceOf[StructType],
       provider = Some(provider),
       partitionColumnNames = partitionColumnNames,
       bucketSpec = bucketSpec,
-      comment = Option(ctx.comment).map(string))
+      comment = Option(ctx.COMMENT()).map(string))
 
     // Determine the storage mode.
     val mode = if (ifNotExists) SaveMode.Ignore else SaveMode.ErrorIfExists
@@ -432,7 +415,8 @@ class SparkSqlAstBuilder(conf: SQLConf) extends AstBuilder(conf) {
           "CREATE TEMPORARY VIEW ... USING ... instead")
         // Unlike CREATE TEMPORARY VIEW USING, CREATE TEMPORARY TABLE USING does not support
         // IF NOT EXISTS. Users are not allowed to replace the existing temp table.
-        CreateTempViewUsing(table, schema, replace = false, global = false, provider, options)
+        CreateTempViewUsing(table, schema.asInstanceOf[Some[StructType]], replace = false
+          , global = false, provider, options)
       } else {
         CreateTable(tableDesc, mode, None)
       }
@@ -743,22 +727,6 @@ class SparkSqlAstBuilder(conf: SQLConf) extends AstBuilder(conf) {
   }
 
   /**
-   * Create a [[AlterTableAddColumnsCommand]] command.
-   *
-   * For example:
-   * {{{
-   *   ALTER TABLE table1
-   *   ADD COLUMNS (col_name data_type [COMMENT col_comment], ...);
-   * }}}
-   */
-  override def visitAddTableColumns(ctx: AddTableColumnsContext): LogicalPlan = withOrigin(ctx) {
-    AlterTableAddColumnsCommand(
-      visitTableIdentifier(ctx.tableIdentifier),
-      visitColTypeList(ctx.columns)
-    )
-  }
-
-  /**
    * Create an [[AlterTableSetPropertiesCommand]] command.
    *
    * For example:
@@ -916,33 +884,6 @@ class SparkSqlAstBuilder(conf: SQLConf) extends AstBuilder(conf) {
   }
 
   /**
-   * Create a [[AlterTableChangeColumnCommand]] command.
-   *
-   * For example:
-   * {{{
-   *   ALTER TABLE table [PARTITION partition_spec]
-   *   CHANGE [COLUMN] column_old_name column_new_name column_dataType [COMMENT column_comment]
-   *   [FIRST | AFTER column_name];
-   * }}}
-   */
-  override def visitChangeColumn(ctx: ChangeColumnContext): LogicalPlan = withOrigin(ctx) {
-    if (ctx.partitionSpec != null) {
-      operationNotAllowed("ALTER TABLE table PARTITION partition_spec CHANGE COLUMN", ctx)
-    }
-
-    if (ctx.colPosition != null) {
-      operationNotAllowed(
-        "ALTER TABLE table [PARTITION partition_spec] CHANGE COLUMN ... FIRST | AFTER otherCol",
-        ctx)
-    }
-
-    AlterTableChangeColumnCommand(
-      tableName = visitTableIdentifier(ctx.tableIdentifier),
-      columnName = ctx.identifier.getText,
-      newColumn = visitColType(ctx.colType))
-  }
-
-  /**
    * Create location string.
    */
   override def visitLocationSpec(ctx: LocationSpecContext): String = withOrigin(ctx) {
@@ -1036,127 +977,6 @@ class SparkSqlAstBuilder(conf: SQLConf) extends AstBuilder(conf) {
           case other => operationNotAllowed(s"LIST with resource type '$other'", ctx)
         }
       case _ => operationNotAllowed(s"Other types of operation on resources", ctx)
-    }
-  }
-
-  /**
-   * Create a Hive serde table, returning a [[CreateTable]] logical plan.
-   *
-   * This is a legacy syntax for Hive compatibility, we recommend users to use the Spark SQL
-   * CREATE TABLE syntax to create Hive serde table, e.g. "CREATE TABLE ... USING hive ..."
-   *
-   * Note: several features are currently not supported - temporary tables, bucketing,
-   * skewed columns and storage handlers (STORED BY).
-   *
-   * Expected format:
-   * {{{
-   *   CREATE [EXTERNAL] TABLE [IF NOT EXISTS] [db_name.]table_name
-   *   [(col1[:] data_type [COMMENT col_comment], ...)]
-   *   [COMMENT table_comment]
-   *   [PARTITIONED BY (col2[:] data_type [COMMENT col_comment], ...)]
-   *   [ROW FORMAT row_format]
-   *   [STORED AS file_format]
-   *   [LOCATION path]
-   *   [TBLPROPERTIES (property_name=property_value, ...)]
-   *   [AS select_statement];
-   * }}}
-   */
-  override def visitCreateHiveTable(ctx: CreateHiveTableContext): LogicalPlan = withOrigin(ctx) {
-    val (name, temp, ifNotExists, external) = visitCreateTableHeader(ctx.createTableHeader)
-    // TODO: implement temporary tables
-    if (temp) {
-      throw new ParseException(
-        "CREATE TEMPORARY TABLE is not supported yet. " +
-          "Please use CREATE TEMPORARY VIEW as an alternative.", ctx)
-    }
-    if (ctx.skewSpec != null) {
-      operationNotAllowed("CREATE TABLE ... SKEWED BY", ctx)
-    }
-
-    val dataCols = Option(ctx.columns).map(visitColTypeList).getOrElse(Nil)
-    val partitionCols = Option(ctx.partitionColumns).map(visitColTypeList).getOrElse(Nil)
-    val properties = Option(ctx.tablePropertyList).map(visitPropertyKeyValues).getOrElse(Map.empty)
-    val selectQuery = Option(ctx.query).map(plan)
-    val bucketSpec = Option(ctx.bucketSpec()).map(visitBucketSpec)
-
-    // Note: Hive requires partition columns to be distinct from the schema, so we need
-    // to include the partition columns here explicitly
-    val schema = StructType(dataCols ++ partitionCols)
-
-    // Storage format
-    val defaultStorage = HiveSerDe.getDefaultStorage(conf)
-    validateRowFormatFileFormat(ctx.rowFormat, ctx.createFileFormat, ctx)
-    val fileStorage = Option(ctx.createFileFormat).map(visitCreateFileFormat)
-      .getOrElse(CatalogStorageFormat.empty)
-    val rowStorage = Option(ctx.rowFormat).map(visitRowFormat)
-      .getOrElse(CatalogStorageFormat.empty)
-    val location = Option(ctx.locationSpec).map(visitLocationSpec)
-    // If we are creating an EXTERNAL table, then the LOCATION field is required
-    if (external && location.isEmpty) {
-      operationNotAllowed("CREATE EXTERNAL TABLE must be accompanied by LOCATION", ctx)
-    }
-
-    val locUri = location.map(CatalogUtils.stringToURI(_))
-    val storage = CatalogStorageFormat(
-      locationUri = locUri,
-      inputFormat = fileStorage.inputFormat.orElse(defaultStorage.inputFormat),
-      outputFormat = fileStorage.outputFormat.orElse(defaultStorage.outputFormat),
-      serde = rowStorage.serde.orElse(fileStorage.serde).orElse(defaultStorage.serde),
-      compressed = false,
-      properties = rowStorage.properties ++ fileStorage.properties)
-    // If location is defined, we'll assume this is an external table.
-    // Otherwise, we may accidentally delete existing data.
-    val tableType = if (external || location.isDefined) {
-      CatalogTableType.EXTERNAL
-    } else {
-      CatalogTableType.MANAGED
-    }
-
-    // TODO support the sql text - have a proper location for this!
-    val tableDesc = CatalogTable(
-      identifier = name,
-      tableType = tableType,
-      storage = storage,
-      schema = schema,
-      bucketSpec = bucketSpec,
-      provider = Some(DDLUtils.HIVE_PROVIDER),
-      partitionColumnNames = partitionCols.map(_.name),
-      properties = properties,
-      comment = Option(ctx.comment).map(string))
-
-    val mode = if (ifNotExists) SaveMode.Ignore else SaveMode.ErrorIfExists
-
-    selectQuery match {
-      case Some(q) =>
-        // Hive does not allow to use a CTAS statement to create a partitioned table.
-        if (tableDesc.partitionColumnNames.nonEmpty) {
-          val errorMessage = "A Create Table As Select (CTAS) statement is not allowed to " +
-            "create a partitioned table using Hive's file formats. " +
-            "Please use the syntax of \"CREATE TABLE tableName USING dataSource " +
-            "OPTIONS (...) PARTITIONED BY ...\" to create a partitioned table through a " +
-            "CTAS statement."
-          operationNotAllowed(errorMessage, ctx)
-        }
-
-        // Don't allow explicit specification of schema for CTAS.
-        if (schema.nonEmpty) {
-          operationNotAllowed(
-            "Schema may not be specified in a Create Table As Select (CTAS) statement",
-            ctx)
-        }
-
-        val hasStorageProperties = (ctx.createFileFormat != null) || (ctx.rowFormat != null)
-        if (conf.convertCTAS && !hasStorageProperties) {
-          // At here, both rowStorage.serdeProperties and fileStorage.serdeProperties
-          // are empty Maps.
-          val newTableDesc = tableDesc.copy(
-            storage = CatalogStorageFormat.empty.copy(locationUri = locUri),
-            provider = Some(conf.defaultDataSourceName))
-          CreateTable(newTableDesc, mode, Some(q))
-        } else {
-          CreateTable(tableDesc, mode, Some(q))
-        }
-      case None => CreateTable(tableDesc, mode, None)
     }
   }
 

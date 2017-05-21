@@ -52,7 +52,7 @@ abstract class AbstractSqlParser extends ParserInterface with Logging {
   /** Creates FunctionIdentifier for a given SQL string. */
   override def parseFunctionIdentifier(sqlText: String): FunctionIdentifier = {
     parse(sqlText) { parser =>
-      astBuilder.visitSingleFunctionIdentifier(parser.singleFunctionIdentifier())
+      astBuilder.visitTableIdentifier(parser.tableIdentifier).asInstanceOf[FunctionIdentifier]
     }
   }
 

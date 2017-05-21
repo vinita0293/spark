@@ -2611,9 +2611,4 @@ class SQLQuerySuite extends QueryTest with SharedSQLContext {
       new URL(jarFromInvalidFs)
     }
   }
-
-  test("RuntimeReplaceable functions should not take extra parameters") {
-    val e = intercept[AnalysisException](sql("SELECT nvl(1, 2, 3)"))
-    assert(e.message.contains("Invalid number of arguments"))
-  }
 }

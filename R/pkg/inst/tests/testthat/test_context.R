@@ -79,7 +79,7 @@ test_that("repeatedly starting and stopping SparkSession", {
 test_that("rdd GC across sparkR.stop", {
   skip_on_cran()
 
-  sc <- sparkR.sparkContext(master = sparkRTestMaster) # sc should get id 0
+  sc <- sparkR.sparkContext() # sc should get id 0
   rdd1 <- parallelize(sc, 1:20, 2L) # rdd1 should get id 1
   rdd2 <- parallelize(sc, 1:10, 2L) # rdd2 should get id 2
   sparkR.session.stop()
@@ -104,7 +104,7 @@ test_that("rdd GC across sparkR.stop", {
 test_that("job group functions can be called", {
   skip_on_cran()
 
-  sc <- sparkR.sparkContext(master = sparkRTestMaster)
+  sc <- sparkR.sparkContext()
   setJobGroup("groupId", "job description", TRUE)
   cancelJobGroup("groupId")
   clearJobGroup()
@@ -118,7 +118,7 @@ test_that("job group functions can be called", {
 test_that("utility function can be called", {
   skip_on_cran()
 
-  sparkR.sparkContext(master = sparkRTestMaster)
+  sparkR.sparkContext()
   setLogLevel("ERROR")
   sparkR.session.stop()
 })
@@ -184,7 +184,7 @@ test_that("spark.lapply should perform simple transforms", {
 test_that("add and get file to be downloaded with Spark job on every node", {
   skip_on_cran()
 
-  sparkR.sparkContext(master = sparkRTestMaster)
+  sparkR.sparkContext()
   # Test add file.
   path <- tempfile(pattern = "hello", fileext = ".txt")
   filename <- basename(path)

@@ -62,6 +62,16 @@ trait PredicateHelper {
     }
   }
 
+  protected def splitAllPredicates(condition: Expression): Seq[Expression] = {
+    condition match {
+      case Or(cond1, cond2) =>
+        splitAllPredicates(cond1) ++ splitAllPredicates(cond2)
+      case And(cond1, cond2) =>
+        splitAllPredicates(cond1) ++ splitAllPredicates(cond2)
+      case other => other :: Nil
+    }
+  }
+
   // Substitute any known alias from a map.
   protected def replaceAlias(
       condition: Expression,
