@@ -1037,11 +1037,11 @@ object PushPredicateThroughJoin extends Rule[LogicalPlan] with PredicateHelper {
 
   def preparePushingFilterCond(joinConditions: Seq[Expression], viniJoinConditions
   : Seq[Expression]): Option[Expression] = {
-    joinConditions.reduceLeftOption(And) viniJoinConditions.diff(joinConditions)
+    (joinConditions.reduceLeftOption(And)
+      ++ viniJoinConditions.diff(joinConditions).reduceLeftOption(Or))
       .reduceLeftOption(Or)
 
-    (joinConditions ++ viniJoinConditions.diff(joinConditions)).
-      reduceLeftOption(And)
+    joinConditions.reduceLeftOption(And)
   }
 }
 
