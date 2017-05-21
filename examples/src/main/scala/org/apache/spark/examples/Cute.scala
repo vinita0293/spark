@@ -54,7 +54,7 @@ object Cute {
     val query2 =
       """select Topic from  one1 as table1 join   one2 as table2
         |where  (table1.User_Name=table2.User_Name
-        |and  (table1.`From`='1111')
+        |and  table1.`From`='1111'
         |and  table1.Mime_Version='343'
         |and  table2.Message_ID='xxxx'
         |and  table2.File_No='11'
@@ -62,11 +62,30 @@ object Cute {
         |or
         |(table1.User_Name=table2.User_Name
         |and  table1.`From`='1111'
-        |and  table1.Mime_Version='343'
-        |and  table2.Message_ID='yyyy'
-        |and  table2.File_No='22')""".stripMargin
+        | or   table2.Message_ID='xxxx'
+        |and  table2.File_No='22'
+        |)""".stripMargin
 
-    spark.sql(query2).explain(false)
+    val query3 =
+      """select Topic from  one1 as table1 join   one2 as table2
+        |where table1.User_Name=table2.User_Name
+        |and  table1.`From`='1111'
+        |and  table1.Mime_Version='343'
+        |and  table2.Message_ID='xxxx'
+        |or  (table2.Message_ID='yyyy' and table2.File_No='11')
+         """.stripMargin
+
+    val query4 =
+      """select Topic from  one1 as table1 join   one2 as table2
+        |where table1.User_Name=table2.User_Name
+        |and  table1.`From`='1111'
+        |and  table1.Subject='xxxx'
+        |or  (table1.Subject='xxxx' or table1.Mime_Version='343')
+      """.stripMargin
+
+//((User_Name#25 = User_Name#34) && (From#26 = 1111)) || (Mime_Version#30 = 343))
+
+    spark.sql(query4).explain(false)
     spark.stop()
   }
 }
