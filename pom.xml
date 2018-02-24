@@ -311,74 +311,74 @@
         <version>4.4</version>
       </dependency>
 
-      <!-- Shaded deps marked as provided. These are promoted to compile scope
+      <!-- Shaded deps marked as compile. These are promoted to compile scope
            in the modules where we want the shaded classes to appear in the
            associated jar. -->
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-http</artifactId>
         <version>${jetty.version}</version>
-        <scope>provided</scope>
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-continuation</artifactId>
         <version>${jetty.version}</version>
-        <scope>provided</scope>
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-servlet</artifactId>
         <version>${jetty.version}</version>
-        <scope>provided</scope>
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-servlets</artifactId>
         <version>${jetty.version}</version>
-        <scope>provided</scope>
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-proxy</artifactId>
         <version>${jetty.version}</version>
-        <scope>provided</scope>
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-client</artifactId>
         <version>${jetty.version}</version>
-        <scope>provided</scope>
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-util</artifactId>
         <version>${jetty.version}</version>
-        <scope>provided</scope>
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-security</artifactId>
         <version>${jetty.version}</version>
-        <scope>provided</scope>
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-plus</artifactId>
         <version>${jetty.version}</version>
-        <scope>provided</scope>
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-server</artifactId>
         <version>${jetty.version}</version>
-        <scope>provided</scope>
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>14.0.1</version>
-        <scope>provided</scope>
+        <scope>compile</scope>
       </dependency>
       <!-- End of shaded deps -->
       <dependency>
@@ -2682,20 +2682,20 @@
 
     <!--
       These empty profiles are available in some sub-modules. Declare them here so that
-      maven does not complain when they're provided on the command line for a sub-module
+      maven does not complain when they're compile on the command line for a sub-module
       that does not have them.
     -->
     <profile>
-      <id>flume-provided</id>
+      <id>flume-compile</id>
     </profile>
     <profile>
-      <id>hadoop-provided</id>
+      <id>hadoop-compile</id>
     </profile>
     <profile>
-      <id>hive-provided</id>
+      <id>hive-compile</id>
     </profile>
     <profile>
-      <id>parquet-provided</id>
+      <id>parquet-compile</id>
     </profile>
     <profile>
       <id>sparkr</id>
