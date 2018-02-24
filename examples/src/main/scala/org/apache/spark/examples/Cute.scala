@@ -26,13 +26,13 @@ import org.apache.spark.sql.SparkSession
 object Cute {
   def main(args: Array[String]) {
 
-    System.setProperty("hive.metastore.uris", "thrift://localhost:9083")
+//    System.setProperty("hive.metastore.uris"uris, "thrift://localhost:9083")
 
     val spark = SparkSession
       .builder()
       .master("local[4]")
       .appName("Spark Pi")
-      .enableHiveSupport()
+//      .enableHiveSupport()
       .getOrCreate()
 
     val query1 =
