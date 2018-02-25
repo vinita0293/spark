@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<!-- saved from url=(0029)http://localhost:4041/stages/ -->
+<html class="gr__localhost"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="./Spark Pi - Stages for All Jobs_files/bootstrap.min.css" type="text/css"><link rel="stylesheet" href="./Spark Pi - Stages for All Jobs_files/vis.min.css" type="text/css"><link rel="stylesheet" href="./Spark Pi - Stages for All Jobs_files/webui.css" type="text/css"><link rel="stylesheet" href="./Spark Pi - Stages for All Jobs_files/timeline-view.css" type="text/css"><script src="./Spark Pi - Stages for All Jobs_files/sorttable.js"></script><script src="./Spark Pi - Stages for All Jobs_files/jquery-1.11.1.min.js"></script><script src="./Spark Pi - Stages for All Jobs_files/vis.min.js"></script><script src="./Spark Pi - Stages for All Jobs_files/bootstrap-tooltip.js"></script><script src="./Spark Pi - Stages for All Jobs_files/initialize-tooltips.js"></script><script src="./Spark Pi - Stages for All Jobs_files/table.js"></script><script src="./Spark Pi - Stages for All Jobs_files/additional-metrics.js"></script><script src="./Spark Pi - Stages for All Jobs_files/timeline-view.js"></script><script src="./Spark Pi - Stages for All Jobs_files/log-view.js"></script><script src="./Spark Pi - Stages for All Jobs_files/webui.js"></script><script>setUIRoot('')</script>
+        
+        
+        <title>Spark Pi - Stages for All Jobs</title>
+      </head>
+      <body data-gr-c-s-loaded="true">
+        <div class="navbar navbar-static-top">
+          <div class="navbar-inner">
+            <div class="brand">
+              <a href="http://localhost:4041/" class="brand">
+                <img src="./Spark Pi - Stages for All Jobs_files/spark-logo-77x50px-hd.png">
+                <span class="version">2.2.1-SNAPSHOT</span>
+              </a>
+            </div>
+            <p class="navbar-text pull-right">
+              <strong title="Spark Pi">Spark Pi</strong> application UI
+            </p>
+            <ul class="nav"><li class="">
+        <a href="http://localhost:4041/jobs/">Jobs</a>
+      </li><li class="active">
+        <a href="http://localhost:4041/stages/">Stages</a>
+      </li><li class="">
+        <a href="http://localhost:4041/storage/">Storage</a>
+      </li><li class="">
+        <a href="http://localhost:4041/environment/">Environment</a>
+      </li><li class="">
+        <a href="http://localhost:4041/executors/">Executors</a>
+      </li><li class="">
+        <a href="http://localhost:4041/SQL/">SQL</a>
+      </li></ul>
+          </div>
+        </div>
+        <div class="container-fluid">
+          <div class="row-fluid">
+            <div class="span12">
+              <h3 style="vertical-align: bottom; display: inline-block;">
+                Stages for All Jobs
+                
+              </h3>
+            </div>
+          </div>
+          <div>
+          <ul class="unstyled">
+            
+            
+            <li id="completed-summary">
+                  <a href="http://localhost:4041/stages/#completed"><strong>Completed Stages:</strong></a>
+                  8
+                </li>
+            
+          </ul>
+        </div><h4 id="completed">Completed Stages (8)</h4><div>
+        
+        <table class="table table-bordered table-condensed table-striped table-head-clickable table-cell-width-limited" id="completedStage-table">
+          <thead><tr><th>
+            <a href="http://localhost:4041/stages/?&amp;completedStage.sort=Stage+Id&amp;completedStage.desc=false&amp;completedStage.pageSize=100#completed">
+              Stage Id<span>
+              &nbsp;▾
+            </span>
+            </a>
+          </th><th>
+              <a href="http://localhost:4041/stages/?&amp;completedStage.sort=Description&amp;completedStage.pageSize=100#completed">
+                Description
+              </a>
+            </th><th>
+              <a href="http://localhost:4041/stages/?&amp;completedStage.sort=Submitted&amp;completedStage.pageSize=100#completed">
+                Submitted
+              </a>
+            </th><th>
+              <a href="http://localhost:4041/stages/?&amp;completedStage.sort=Duration&amp;completedStage.pageSize=100#completed">
+                Duration
+              </a>
+            </th><th>
+              Tasks: Succeeded/Total
+            </th><th>
+              <a href="http://localhost:4041/stages/?&amp;completedStage.sort=Input&amp;completedStage.pageSize=100#completed">
+                <span data-toggle="tooltip" title="" data-original-title="Bytes and records read from Hadoop or from Spark storage.">
+              Input
+            </span>
+              </a>
+            </th><th>
+              <a href="http://localhost:4041/stages/?&amp;completedStage.sort=Output&amp;completedStage.pageSize=100#completed">
+                <span data-toggle="tooltip" title="" data-original-title="Bytes and records written to Hadoop.">
+              Output
+            </span>
+              </a>
+            </th><th>
+              <a href="http://localhost:4041/stages/?&amp;completedStage.sort=Shuffle+Read&amp;completedStage.pageSize=100#completed">
+                <span data-toggle="tooltip" title="" data-original-title="Total shuffle bytes and records read (includes both data read locally and data read from
+       remote executors). ">
+              Shuffle Read
+            </span>
+              </a>
+            </th><th>
+              <a href="http://localhost:4041/stages/?&amp;completedStage.sort=Shuffle+Write&amp;completedStage.pageSize=100#completed">
+                <span data-toggle="tooltip" data-placement="left" title="" data-original-title="Bytes and records written to disk in order to be read by a shuffle in a future stage.">
+              Shuffle Write
+            </span>
+              </a>
+            </th></tr></thead>
+          <tbody>
+            <tr id="stage-19-0">
+      <td>19</td><td><div>  <a href="http://localhost:4041/stages/stage?id=19&amp;attempt=0" class="name-link">show at QueryGroupByMinOptJob.scala:28</a> <span onclick="this.parentNode.querySelector(&#39;.stage-details&#39;).classList.toggle(&#39;collapsed&#39;)" class="expand-details">
+        +details
+      </span><div class="stage-details collapsed">
+        
+        <pre>org.apache.spark.sql.Dataset.show(Dataset.scala:611)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob$.main(QueryGroupByMinOptJob.scala:28)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob.main(QueryGroupByMinOptJob.scala)</pre>
+      </div></div></td><td valign="middle">
+          2018/02/25 19:01:52
+        </td><td>0.4 s</td><td class="progress-cell">
+          <div class="progress">
+      <span style="text-align:center; position:absolute; width:100%; left:0;">
+        75/75
+        
+        
+        
+      </span>
+      <div class="bar bar-completed" style="width: 100.0%"></div>
+      <div class="bar bar-running" style="width: 0.0%"></div>
+    </div>
+        </td><td></td><td></td><td>84.0 B</td><td></td>
+    </tr><tr id="stage-15-0">
+      <td>15</td><td><div>  <a href="http://localhost:4041/stages/stage?id=15&amp;attempt=0" class="name-link">show at QueryGroupByMinOptJob.scala:28</a> <span onclick="this.parentNode.querySelector(&#39;.stage-details&#39;).classList.toggle(&#39;collapsed&#39;)" class="expand-details">
+        +details
+      </span><div class="stage-details collapsed">
+        
+        <pre>org.apache.spark.sql.Dataset.show(Dataset.scala:611)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob$.main(QueryGroupByMinOptJob.scala:28)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob.main(QueryGroupByMinOptJob.scala)</pre>
+      </div></div></td><td valign="middle">
+          2018/02/25 19:01:51
+        </td><td>0.5 s</td><td class="progress-cell">
+          <div class="progress">
+      <span style="text-align:center; position:absolute; width:100%; left:0;">
+        100/100
+        
+        
+        
+      </span>
+      <div class="bar bar-completed" style="width: 100.0%"></div>
+      <div class="bar bar-running" style="width: 0.0%"></div>
+    </div>
+        </td><td></td><td></td><td></td><td></td>
+    </tr><tr id="stage-11-0">
+      <td>11</td><td><div>  <a href="http://localhost:4041/stages/stage?id=11&amp;attempt=0" class="name-link">show at QueryGroupByMinOptJob.scala:28</a> <span onclick="this.parentNode.querySelector(&#39;.stage-details&#39;).classList.toggle(&#39;collapsed&#39;)" class="expand-details">
+        +details
+      </span><div class="stage-details collapsed">
+        
+        <pre>org.apache.spark.sql.Dataset.show(Dataset.scala:611)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob$.main(QueryGroupByMinOptJob.scala:28)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob.main(QueryGroupByMinOptJob.scala)</pre>
+      </div></div></td><td valign="middle">
+          2018/02/25 19:01:51
+        </td><td>45 ms</td><td class="progress-cell">
+          <div class="progress">
+      <span style="text-align:center; position:absolute; width:100%; left:0;">
+        20/20
+        
+        
+        
+      </span>
+      <div class="bar bar-completed" style="width: 100.0%"></div>
+      <div class="bar bar-running" style="width: 0.0%"></div>
+    </div>
+        </td><td></td><td></td><td></td><td></td>
+    </tr><tr id="stage-7-0">
+      <td>7</td><td><div>  <a href="http://localhost:4041/stages/stage?id=7&amp;attempt=0" class="name-link">show at QueryGroupByMinOptJob.scala:28</a> <span onclick="this.parentNode.querySelector(&#39;.stage-details&#39;).classList.toggle(&#39;collapsed&#39;)" class="expand-details">
+        +details
+      </span><div class="stage-details collapsed">
+        
+        <pre>org.apache.spark.sql.Dataset.show(Dataset.scala:611)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob$.main(QueryGroupByMinOptJob.scala:28)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob.main(QueryGroupByMinOptJob.scala)</pre>
+      </div></div></td><td valign="middle">
+          2018/02/25 19:01:51
+        </td><td>14 ms</td><td class="progress-cell">
+          <div class="progress">
+      <span style="text-align:center; position:absolute; width:100%; left:0;">
+        4/4
+        
+        
+        
+      </span>
+      <div class="bar bar-completed" style="width: 100.0%"></div>
+      <div class="bar bar-running" style="width: 0.0%"></div>
+    </div>
+        </td><td></td><td></td><td></td><td></td>
+    </tr><tr id="stage-3-0">
+      <td>3</td><td><div>  <a href="http://localhost:4041/stages/stage?id=3&amp;attempt=0" class="name-link">show at QueryGroupByMinOptJob.scala:28</a> <span onclick="this.parentNode.querySelector(&#39;.stage-details&#39;).classList.toggle(&#39;collapsed&#39;)" class="expand-details">
+        +details
+      </span><div class="stage-details collapsed">
+        
+        <pre>org.apache.spark.sql.Dataset.show(Dataset.scala:611)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob$.main(QueryGroupByMinOptJob.scala:28)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob.main(QueryGroupByMinOptJob.scala)</pre>
+      </div></div></td><td valign="middle">
+          2018/02/25 19:01:51
+        </td><td>17 ms</td><td class="progress-cell">
+          <div class="progress">
+      <span style="text-align:center; position:absolute; width:100%; left:0;">
+        1/1
+        
+        
+        
+      </span>
+      <div class="bar bar-completed" style="width: 100.0%"></div>
+      <div class="bar bar-running" style="width: 0.0%"></div>
+    </div>
+        </td><td></td><td></td><td></td><td></td>
+    </tr><tr id="stage-2-0">
+      <td>2</td><td><div>  <a href="http://localhost:4041/stages/stage?id=2&amp;attempt=0" class="name-link">show at QueryGroupByMinOptJob.scala:28</a> <span onclick="this.parentNode.querySelector(&#39;.stage-details&#39;).classList.toggle(&#39;collapsed&#39;)" class="expand-details">
+        +details
+      </span><div class="stage-details collapsed">
+        
+        <pre>org.apache.spark.sql.Dataset.show(Dataset.scala:611)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob$.main(QueryGroupByMinOptJob.scala:28)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob.main(QueryGroupByMinOptJob.scala)</pre>
+      </div></div></td><td valign="middle">
+          2018/02/25 19:01:49
+        </td><td>2 s</td><td class="progress-cell">
+          <div class="progress">
+      <span style="text-align:center; position:absolute; width:100%; left:0;">
+        200/200
+        
+        
+        
+      </span>
+      <div class="bar bar-completed" style="width: 100.0%"></div>
+      <div class="bar bar-running" style="width: 0.0%"></div>
+    </div>
+        </td><td></td><td></td><td>1648.0 B</td><td>84.0 B</td>
+    </tr><tr id="stage-1-0">
+      <td>1</td><td><div>  <a href="http://localhost:4041/stages/stage?id=1&amp;attempt=0" class="name-link">show at QueryGroupByMinOptJob.scala:28</a> <span onclick="this.parentNode.querySelector(&#39;.stage-details&#39;).classList.toggle(&#39;collapsed&#39;)" class="expand-details">
+        +details
+      </span><div class="stage-details collapsed">
+        
+        <pre>org.apache.spark.sql.Dataset.show(Dataset.scala:611)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob$.main(QueryGroupByMinOptJob.scala:28)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob.main(QueryGroupByMinOptJob.scala)</pre>
+      </div></div></td><td valign="middle">
+          2018/02/25 19:01:33
+        </td><td>11 s</td><td class="progress-cell">
+          <div class="progress">
+      <span style="text-align:center; position:absolute; width:100%; left:0;">
+        6/6
+        
+        
+        
+      </span>
+      <div class="bar bar-completed" style="width: 100.0%"></div>
+      <div class="bar bar-running" style="width: 0.0%"></div>
+    </div>
+        </td><td>659.4 KB</td><td></td><td></td><td>1074.0 B</td>
+    </tr><tr id="stage-0-0">
+      <td>0</td><td><div>  <a href="http://localhost:4041/stages/stage?id=0&amp;attempt=0" class="name-link">show at QueryGroupByMinOptJob.scala:28</a> <span onclick="this.parentNode.querySelector(&#39;.stage-details&#39;).classList.toggle(&#39;collapsed&#39;)" class="expand-details">
+        +details
+      </span><div class="stage-details collapsed">
+        
+        <pre>org.apache.spark.sql.Dataset.show(Dataset.scala:611)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob$.main(QueryGroupByMinOptJob.scala:28)
+com.spark.optimization.exec.QueryGroupByMin.QueryGroupByMinOptJob.main(QueryGroupByMinOptJob.scala)</pre>
+      </div></div></td><td valign="middle">
+          2018/02/25 19:01:33
+        </td><td>9 s</td><td class="progress-cell">
+          <div class="progress">
+      <span style="text-align:center; position:absolute; width:100%; left:0;">
+        6/6
+        
+        
+        
+      </span>
+      <div class="bar bar-completed" style="width: 100.0%"></div>
+      <div class="bar bar-running" style="width: 0.0%"></div>
+    </div>
+        </td><td>1002.6 KB</td><td></td><td></td><td>574.0 B</td>
+    </tr>
+          </tbody>
+        </table>
+      </div>
+        </div>
+      
+    <iframe frameborder="0" scrolling="no" style="background-color: transparent; border: 0px; display: none;" src="./Spark Pi - Stages for All Jobs_files/saved_resource.html"></iframe><div id="GOOGLE_INPUT_CHEXT_FLAG" style="display: none;" input="" input_stat="{&quot;tlang&quot;:true,&quot;tsbc&quot;:true,&quot;pun&quot;:true,&quot;mk&quot;:true,&quot;ss&quot;:true}"></div></body></html>
